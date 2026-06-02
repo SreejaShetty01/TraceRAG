@@ -1,0 +1,1 @@
+-- Placeholder Postgres init for TraceRAG

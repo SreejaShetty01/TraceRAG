@@ -1,0 +1,16 @@
+# Placeholder gitignore for TraceRAG
+venv/
+.venv/
+
+__pycache__/
+*.pyc
+
+.pytest_cache/
+
+.cursor/
+
+.env
+
+.qdrant/
+
+*.log
