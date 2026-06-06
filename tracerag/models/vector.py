@@ -92,6 +92,17 @@ class VectorStorageValidationResult(BaseModel):
         return self
 
 
+class VectorSearchHit(BaseModel):
+    """Single vector similarity search hit from the vector store."""
+
+    model_config = ConfigDict(frozen=True, strict=True, extra="forbid")
+
+    point_id: VectorPointId
+    chunk_id: ChildChunkId
+    score: float
+    payload: VectorPointPayload
+
+
 class VectorUpsertFailure(BaseModel):
     """Failed upsert for a single embedding record."""
 

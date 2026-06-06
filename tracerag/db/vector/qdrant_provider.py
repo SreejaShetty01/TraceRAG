@@ -5,7 +5,7 @@ from __future__ import annotations
 from tracerag.core.exceptions import VectorStorageError
 from tracerag.db.vector.config import CollectionConfig, QdrantConfig
 from tracerag.db.vector.contracts import VectorStore
-from tracerag.models.vector import StoredVectorRecord, VectorUpsertFailure, VectorUpsertResult
+from tracerag.models.vector import StoredVectorRecord, VectorSearchHit, VectorUpsertFailure, VectorUpsertResult
 
 
 
@@ -109,3 +109,39 @@ class QdrantVectorStore(VectorStore):
             upserted_count=upserted,
             failures=tuple(failures),
         )
+
+    def search(
+        self,
+        query_vector: list[float],
+        *,
+        limit: int,
+        query_filter=None,
+    ) -> list[VectorSearchHit]:
+        """Search the collection by vector similarity."""
+        try:
+            hits = self._client.search(
+                collection_name=self.collection_name,
+                query_vector=query_vector,
+                limit=limit,
+                query_filter=query_filter,
+                with_payload=True,
+            )
+        except Exception as exc:
+            raise VectorStorageError("Qdrant vector search failed", cause=exc) from exc
+
+        results: list[VectorSearchHit] = []
+        for hit in hits:
+            payload_data = hit.payload or {}
+            try:
+                payload = VectorPointPayload.model_validate(payload_data)
+            except Exception:
+                continue
+            results.append(
+                VectorSearchHit(
+                    point_id=str(hit.id),
+                    chunk_id=payload.chunk_id,
+                    score=float(hit.score),
+                    payload=payload,
+                )
+            )
+        return results

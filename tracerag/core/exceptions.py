@@ -64,6 +64,15 @@ class VectorStorageError(IngestionError):
             self.__cause__ = cause
 
 
+class RetrievalError(IngestionError):
+    """Raised when hybrid retrieval operations fail."""
+
+    def __init__(self, message: str, *, cause: BaseException | None = None) -> None:
+        super().__init__(message)
+        if cause is not None:
+            self.__cause__ = cause
+
+
 # ---------------------------------------------------------------------------
 # Discovery
 # ---------------------------------------------------------------------------
